@@ -24,6 +24,10 @@ namespace ConfigExample
         public class GreetingSettings
         {
             public string Text { get; set; }
+
+            public int Number { get; set; }
+
+            public bool IsEnabled { get; set; }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -34,6 +38,8 @@ namespace ConfigExample
                     config.Sources.Clear();
                     config.AddJsonFile("appsettings.json", optional: false, true);
                     config.AddJsonFile($"appsettings.{environmentName}.json", optional: true, reloadOnChange: true);
+
+                    config.AddEnvironmentVariables("NAVEEGO_");
                     
                 })
                 .ConfigureServices((ctx, serviceCollection) =>
@@ -57,7 +63,8 @@ namespace ConfigExample
                             endpoints.MapGet("/", async context =>
                             {
                                 var settings = context.RequestServices.GetService<IOptions<GreetingSettings>>();
-                                await context.Response.WriteAsync(settings.Value.Text);
+                                var message = $"{settings.Value.Text} - Number: {settings.Value.Number} - IsEnabled - {settings.Value.IsEnabled}";
+                                await context.Response.WriteAsync(message);
                             });
                         });
                     })
